@@ -7,7 +7,7 @@ int main() {
     initialize_values() ;
 
     
-    cout<<"<-----------------Welcome to the ByteShell----------------->\n" ;
+    cout<<"                           \n<-----------------Welcome to the ByteShell----------------->\n" ;
     
     while (true) {
         // Asking for input

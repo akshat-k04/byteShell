@@ -4,6 +4,7 @@
 #include <sstream> // Provides string stream classes for manipulating strings
 #include <fstream> // Allows file creation, reading, and writing operations
 #include <sys/stat.h> // for directory creation
+#include <cstdio> // for file delete
 using namespace std ;
 
 // Define global variables
@@ -52,12 +53,58 @@ void extract(){
 
 // commands function
 void executeHelp() {
-    // very simple all set for this 
     cout << "Built-in commands:" << endl;
-    cout << "cd <dir> - Change directory" << endl;
-    cout << "pwd - Print working directory" << endl;
-    cout << "echo <text> - Print text" << endl;
-    cout << "exit - Exit the shell" << endl;
+    
+    cout << endl<< "1. echo [OPTION]... [STRING]..." << endl;
+    cout << "   Print the STRING(s) to the standard output." << endl;
+    cout << "   Options:" << endl;
+    cout << "     -n    Do not print the trailing newline character." << endl;
+    cout << "     -e    Enable interpretation of backslash escapes (e.g., \\n, \\t)." << endl;
+    
+    cout << endl<< "2. cd [DIRECTORY]" << endl;
+    cout << "   Change the current working directory to DIRECTORY." << endl;
+    cout << "   Special case: '~' for the home directory." << endl;
+    
+    cout << endl<< "3. exit" << endl;
+    cout << "   Exit the shell." << endl;
+    
+    cout << endl<< "4. pwd" << endl;
+    cout << "   Print the current working directory." << endl;
+    
+    cout << endl<< "5. history [OPTION] [ARGUMENT]" << endl;
+    cout << "   Display the command history." << endl;
+    cout << "   Options:" << endl;
+    cout << "     -c    Clear the command history." << endl;
+    cout << "     | grep [SEARCH_STR]  Filter history by SEARCH_STR." << endl;
+    
+    cout << endl<< "6. !!" << endl;
+    cout << "   Re-execute the last command from history." << endl;
+    
+    cout << endl<< "7. !N" << endl;
+    cout << "   Re-execute the command at index N from history." << endl;
+    
+    cout << endl<< "8. touch [FILENAME]" << endl;
+    cout << "   Create a new file named FILENAME." << endl;
+    
+    cout << endl<< "9. mkdir [DIRECTORY_NAME]" << endl;
+    cout << "   Create a new directory named DIRECTORY_NAME." << endl;
+    
+    cout << endl<< "10. rm [FILENAME]" << endl;
+    cout << "    Delete the file named FILENAME." << endl;
+    
+    cout << endl<< "11. rmdir [DIRECTORY_NAME]" << endl;
+    cout << "    Delete the directory named DIRECTORY_NAME." << endl;
+    
+    cout << endl<< "12. ls [-R]" << endl;
+    cout << "    List directory contents." << endl;
+    cout << "    Options:" << endl;
+    cout << "      -R    Recursively list subdirectories." << endl;
+    
+    cout << endl<< "13. ps" << endl;
+    cout << "    Display process information (not implemented yet)." << endl;
+    
+    cout << endl<< "14. kill" << endl;
+    cout << "    Terminate a process (not implemented yet)." << endl;
 }
 void executeEcho() {
     /*
@@ -112,10 +159,10 @@ void executeCd() {
 
     // checking if path is given or not 
     if (args.empty()) {
-        std::cerr << "cd: missing argument" << std::endl;
+        cerr << "cd: missing argument" << endl;
         return;
     }
-    std::string newDir = args[0];
+    string newDir = args[0];
 
     // Handle special case for home directory
     if (newDir == "~") {
@@ -123,7 +170,7 @@ void executeCd() {
         if (homeDir) {
             newDir = homeDir;
         } else {
-            std::cerr << "cd: HOME environment variable not set" << std::endl;
+            cerr << "cd: HOME environment variable not set" << endl;
             return;
         }
     }
@@ -143,6 +190,7 @@ void executePWD(){
 }
 void executeHistory(){
     if(args.size()==0){
+        cout<<"Command History:"<<endl ;
         for(int e=history_commands.size()-2 ;e>=0 ; e--)cout<<e<<":"<<history_commands[e]<<endl ;
     }
     else {
@@ -157,12 +205,14 @@ void executeHistory(){
                         args[2].pop_back() ;
                     }
                     for(int e=history_commands.size()-2 ;e>=0 ; e--){
+                        cout<<"Command History"<<endl ;
                         if(history_commands[e].find(args[2])!=string::npos){
                             cout<<e<<":"<<history_commands[e]<<endl ;
                         } 
                     }
                 }
                 else{
+                    cout<<"Command History"<<endl ;
                     for(int e=history_commands.size()-2 ;e>=0 ; e--)cout<<e<<":"<<history_commands[e]<<endl ;
                 }
             }
@@ -186,12 +236,12 @@ void excutePreviousCommand(){
         else {
             command.erase(command.begin()) ;
             try {
-                indx = std::stoi(command);
-            } catch (const std::invalid_argument& e) {
-                std::cerr << "Invalid argument: " << e.what() << std::endl;
+                indx = stoi(command);
+            } catch (const invalid_argument& e) {
+                cerr << "Invalid argument: " << e.what() << endl;
                 return ;
-            } catch (const std::out_of_range& e) {
-                std::cerr << "Out of range: " << e.what() << std::endl;
+            } catch (const out_of_range& e) {
+                cerr << "Out of range: " << e.what() << endl;
                 return ;
             }
         }
@@ -200,7 +250,7 @@ void excutePreviousCommand(){
             curr_input_command = history_commands[indx] ;
         }
         else {
-            std::cerr << "Out of range: " << indx << std::endl;
+            cerr << "Out of range: " << indx << endl;
         }
     }
     else {
@@ -208,28 +258,128 @@ void excutePreviousCommand(){
         cerr<<"invalid Command"<<endl ;
     }
 }
-void executeFileCreate(){
-    if(args.size()!=0){
-        if(args[0][0]=="'" || args[0][0]=='\"'){
-            args[0].erase(args[0].begin()) ;
-            args.pop_back() ;
+void executeFileCreate() {
+    if (args.size() != 0) {
+        string filename = args[0];
+        
+        // Remove surrounding quotes if present
+        if (filename.front() == '"' || filename.front() == '\'') {
+            filename.erase(filename.begin());
         }
-        ofstream file(args[0]);
+        if (filename.back() == '"' || filename.back() == '\'') {
+            filename.pop_back();
+        }
+
+        // Create the file
+        ofstream file(filename);
+        if (file.is_open()) {
+            cout << "File created successfully" << endl;
+        } else {
+            cerr << "Error creating file" << endl;
+        }
+    } else {
+        cerr << "Name can't be empty" << endl;
+    }
+}
+void executeDirectoryCreate() {
+    if (args.size() == 0) {
+        cerr << "Specify the directory name" << endl;
+        return;
+    }
+
+    string dirName = args[0];
+    
+    // Remove surrounding quotes if present
+    if (dirName.front() == '"' || dirName.front() == '\'') {
+        dirName.erase(dirName.begin());
+    }
+    if (dirName.back() == '"' || dirName.back() == '\'') {
+        dirName.pop_back();
+    }
+
+    // Create the directory
+    if (mkdir(dirName.c_str(), 0777) == 0) {
+        cout << "Directory created successfully.\n";
+    } else {
+        perror("Error creating directory");
+    }
+}
+void executeRM() {
+    if (args.size() == 0) {
+        cerr << "Enter the name of the file" << endl;
+        return;
+    }
+
+    string fileName = args[0];
+    
+    // Remove surrounding quotes if present
+    if (fileName.front() == '"' || fileName.front() == '\'') {
+        fileName.erase(fileName.begin());
+    }
+    if (fileName.back() == '"' || fileName.back() == '\'') {
+        fileName.pop_back();
+    }
+
+    // Delete the file
+    if (remove(fileName.c_str()) == 0) {
+        cout << "File deleted successfully\n";
+    } else {
+        perror("Error deleting file");
+    }
+}
+void executeRmDir() {
+    if (args.size() == 0) {
+        cerr << "Directory name not entered" << endl;
+        return;
+    }
+
+    string dirName = args[0];
+    
+    // Remove surrounding quotes if present
+    if (dirName.front() == '"' || dirName.front() == '\'') {
+        dirName.erase(dirName.begin());
+    }
+    if (dirName.back() == '"' || dirName.back() == '\'') {
+        dirName.pop_back();
+    }
+
+    // Delete the directory
+    if (rmdir(dirName.c_str()) == 0) {
+        cout << "Directory deleted successfully.\n";
+    } else {
+        perror("Error deleting directory");
+    }
+}
+void LStraverse(int i , string temp){
+    for (const auto& entry : filesystem::directory_iterator(temp)) {
+        // if(entry.path().filename().string() ==".git")continue ;
+        for(int e=0 ;e<i ;e++)cout<<"  ";
+        cout<< entry.path().filename().string() << endl;
+        if( filesystem::is_directory(entry.status())){// it is directory
+            string new_tmep =temp +"/" + entry.path().filename().string() ;
+            LStraverse(i+1 , new_tmep) ;
+        }
+    }
+}
+void executeLs(){
+    if(args.size()>0 && args[0]=="-R"){
+        
+        LStraverse(0,path) ;
     }
     else {
-        cerr<<"Name can't be empty"<<endl ;
+        for (const auto& entry : filesystem::directory_iterator(path)) {
+            cout << entry.path().filename().string() << endl;
+        }
     }
+    
 }
-void executeDirectoryCreate(){
-    if(echo.size()==0){
-        cerr<<"Specify the Directory name"<<endl ;
-    }
-    else if (mkdir(echo[0], 0777) == 0) {
-        std::cout << "Directory created successfully.\n";
-    } else {
-        std::cerr << "Error creating directory.\n";
-    }
+void executePs(){
+    cout<<"ps and kill is not implemented yet!"<<endl ;
 }
+void executeKill(){
+    cout<<"ps and kill is not implemented yet!"<<endl ;
+}
+
 void execute() {
     if(command==""){
         return  ;
@@ -248,81 +398,28 @@ void execute() {
     } else if (command == "exit") {
         // call exit function
         executeExit() ;
-    } 
-    else if (command == "history") {
+    } else if (command == "history") {
         // call history function
         executeHistory() ;
-    } 
-    else if(command[0]== '!'){
+    } else if(command[0]== '!'){
         excutePreviousCommand() ;
-    }
-    else if(command=="touch"){
+    } else if(command=="touch"){
         executeFileCreate() ;
-    }
-    else if(command=="mkdir"){
+    } else if(command=="mkdir"){
         executeDirectoryCreate() ;
-    }
-
-    // else if (command == "kill") {
-    //     // call kill function
-    //     executeKill() ;
-    // } else if (command == "bg") {
-    //     // call bg function
-    //     executeBg() ;
-    // } else if (command == "alias") {
-    //     // call alias function
-    //     executeAlias() ;
-    // } else if (command == "bind") {
-    //     // call bind function
-    //     executeBind() ;
-    // } else if (command == "caller") {
-    //     // call caller function
-    //     executeCaller() ;
-    // } else if (command == "command") {
-    //     // call command function
-    //     executeCommand() ;
-    // } else if (command == "builtin") {
-    //     // call builtin function
-    //     executeBuiltin() ;
-    // } else if (command == "declare") {
-    //     // call declare function
-    //     executeDeclare() ;
-    // } else if (command == "enable") {
-    //     // call enable function
-    // } else if (command == "let") {
-    //     // call let function
-    // } else if (command == "local") {
-    //     // call local function
-    // } else if (command == "logout") {
-    //     // call logout function
-    // } else if (command == "mapfile") {
-    //     // call mapfile function
-    // } else if (command == "read") {
-    //     // call read function
-    // } else if (command == "printf") {
-    //     // call printf function
-    // } else if (command == "readarray") {
-    //     // call readarray function
-    // } else if (command == "type") {
-    //     // call type function
-    // } else if (command == "typeset") {
-    //     // call typeset function
-    // } else if (command == "ulimit") {
-    //     // call ulimit function
-    // } else if (command == "unalias") {
-    //     // call unalias function
-    // } 
-    else {
+    } else if(command=="rm"){
+        executeRM() ;
+    } else if(command=="rmdir"){
+        executeRmDir() ;
+    } else if(command=="ls"){
+        executeLs() ;
+    } else if (command == "kill") {
+        // call kill function
+        executeKill() ;
+    } else if(command=="ps"){
+        // call ps function
+        executePs() ;
+    } else {
         cerr << "Unknown command: " << command << endl;
     }
 }
-
-
-// void printWorkingDirectory() {
-//     char cwd[1024];
-//     if (getcwd(cwd, sizeof(cwd)) != NULL) {
-//         cout << cwd << endl;
-//     } else {
-//         perror("getcwd failed");
-//     }
-// }
