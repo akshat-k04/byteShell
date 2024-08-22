@@ -100,20 +100,14 @@ void executeHelp() {
     cout << "    Options:" << endl;
     cout << "      -R    Recursively list subdirectories." << endl;
     
-    cout << endl<< "13. ps" << endl;
-    cout << "    Display process information (not implemented yet)." << endl;
+    // cout << endl<< "13. ps" << endl;
+    // cout << "    Display process information (not implemented yet)." << endl;
     
-    cout << endl<< "14. kill" << endl;
-    cout << "    Terminate a process (not implemented yet)." << endl;
+    // cout << endl<< "14. kill" << endl;
+    // cout << "    Terminate a process (not implemented yet)." << endl;
 }
 void executeEcho() {
-    /*
-    here I have 2 flags
-    -n: Do not print the trailing newline character.
 
-    -e: Enable interpretation of backslash escapes (like \n for newline, \t for tab).
-        Example: echo -e "Hello\nWorld" prints Hello on one line and World on the next line.
-    */
     bool new_line = true;
     bool interpret = false ;
     int i=0 ;
@@ -413,13 +407,15 @@ void execute() {
         executeRmDir() ;
     } else if(command=="ls"){
         executeLs() ;
-    } else if (command == "kill") {
-        // call kill function
-        executeKill() ;
-    } else if(command=="ps"){
-        // call ps function
-        executePs() ;
-    } else {
+    } 
+    // else if (command == "kill") {
+    //     // call kill function
+    //     executeKill() ;
+    // } else if(command=="ps"){
+    //     // call ps function
+    //     executePs() ;
+    // } 
+    else {
         cerr << "Unknown command: " << command << endl;
     }
 }

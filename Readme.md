@@ -60,11 +60,11 @@ ByteShell is a lightweight Unix-like shell implemented in C++. It supports basic
     - Options:
       - `-R`    Recursively list subdirectories.
 
-13. **`ps`**
+<!-- 13. **`ps`**
     - Display process information (not implemented yet).
 
 14. **`kill`**
-    - Terminate a process (not implemented yet).
+    - Terminate a process (not implemented yet). -->
 
 ## Building and Running
 
