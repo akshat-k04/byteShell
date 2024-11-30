@@ -198,8 +198,8 @@ void executeHistory(){
                         args[2].erase(args[2].begin()) ;
                         args[2].pop_back() ;
                     }
+                    cout<<"Command History"<<endl ;
                     for(int e=history_commands.size()-2 ;e>=0 ; e--){
-                        cout<<"Command History"<<endl ;
                         if(history_commands[e].find(args[2])!=string::npos){
                             cout<<e<<":"<<history_commands[e]<<endl ;
                         } 
